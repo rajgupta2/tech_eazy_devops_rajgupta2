@@ -1,0 +1,3 @@
+We are cloning the repo-
+https://github.com/techeazy-consulting/techeazy-devops
+direct from the srver and packaging the application at runtime and then deploying the application.

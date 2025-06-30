@@ -1,0 +1,9 @@
+{
+  "ami_value": "ami-018046b953a698135",
+  "instance_type_value": "t3.micro",
+  "key_name_value": "new-key.pem",
+  "subnet_id_defaultVPC":"subnet-0850ced02e7902d56",
+  "aws_region": "ap-south-1",
+  "s3_bucket_name": "raj-techeazy",
+  "stop_after_minutes": 20
+}
