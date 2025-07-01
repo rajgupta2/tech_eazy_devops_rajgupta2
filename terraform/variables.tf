@@ -27,8 +27,8 @@ variable "key_name_value" {
   default     = "new-key.pem"
 }
 
-variable "s3_bucket_name" {
-  description = "Default AWS region for CLI configuration"
-  type        = string
-  default     = "raj-techeazy" # Replace with your desired bucket name
-}
+# variable "s3_bucket_name" {
+#   description = "Default AWS region for CLI configuration"
+#   type        = string
+#   default     = "raj-techeazy" # Replace with your desired bucket name
+# }
