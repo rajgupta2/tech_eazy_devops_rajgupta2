@@ -20,15 +20,26 @@ variable "instance_type_value" {
   type        = string
   default     = "t3.micro"
 }
-
+variable "instance_name" {
+  type = string
+  default = "MyInstance-techeazyWithS3Access"
+}
 variable "key_name_value" {
   description = "name of pem file"
   type        = string
   default     = "new-key.pem"
 }
 
-# variable "s3_bucket_name" {
-#   description = "Default AWS region for CLI configuration"
-#   type        = string
-#   default     = "raj-techeazy" # Replace with your desired bucket name
-# }
+variable "s3_bucket" {
+  description = "The name of the S3 bucket"
+  type        = string
+  default = "logs-bucket-rajgupta2-ap-south-1"
+  validation {
+    condition = length(var.s3_bucket)>0
+    error_message = "The bucket name must be provided and cannot be empty."
+  }
+}
+variable "stop_after_minutes" {
+  type = number
+  default = 20
+}
