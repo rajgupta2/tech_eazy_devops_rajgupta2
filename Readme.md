@@ -78,6 +78,7 @@ Type `yes` when prompted.
 
   ```bash
   /var/log/cloud-init-output.log
+  # and also available at S3 Bucket and also app logs be there.
   ```
 
 ---
