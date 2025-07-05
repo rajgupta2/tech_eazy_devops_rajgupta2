@@ -8,7 +8,7 @@ output "instance_id" {
 }
 output "Deploying" {
   description = "Deploying the application"
-  value       = "Please wait 5 to 7 minutes while setup our deployment server. As we are installing java, maven and git"
+  value       = "Please wait upto 2  minutes while setup our deployment server. As we are installing java, maven and git"
 }
 output "shutdown" {
   description = "shutdown msg"
