@@ -1,20 +1,56 @@
-# 🚀 Terraform EC2 Setup with Java and Maven Installation
+# 🚀 Assignment-03 (Github Action Integration)
 
-This repository contains Terraform code to provision an AWS EC2 instance and automatically install **Java** and **Maven** using a `user_data` script.
+This repository contains Terraform code to launch an AWS EC2 instance  and  create an s3 bucket to store logs. You can use this repo as
 
----
-
-## 📦 What This Terraform Setup Does
-
-- Creates an AWS EC2 instance
-- Installs Java (e.g., JDK 21)
-- Installs Maven (e.g., 3.9.10)
-- Sets `JAVA_HOME` and `MAVEN_HOME` environment variables
-- Writes logs to `/var/log/cloud-init-output.log`
+- ✅ **Locally** on your machine
+- ✅ **Automatically** through a **GitHub Actions** workflow
 
 ---
 
-## 🛠️ Prerequisites
+## 📋 Prerequisites for GitHub Actions
+
+### 1. ✅ Fork the Repository
+  Click on the fork button at the top right of this GitHub repo to create your own copy.
+
+### 2. 🔐 Configure AWS Credentials in GitHub
+You need an **AWS IAM user** with **programmatic access**. Set your AWS credentials as repository secrets:
+
+Navigate to:
+`Settings` > `Secrets and variables` > `Actions` > `New repository secret`
+
+Add the following secrets:
+- `AWS_ACCESS_KEY_ID`: Your AWS Access Key ID
+- `AWS_SECRET_ACCESS_KEY`: Your AWS Secret Access Key
+
+### 3. 🪣 Create an S3 Bucket to manage Terraform State file so that you can also delete the infrastructure using github actions
+- Create a **globally unique** S3 bucket.
+- Configure the S3 bucket name in the `bucket` attribute inside the `backend.tf` file located in the `./terraform/` directory.
+- Commit the updated `backend.tf`.
+
+This ensures the Terraform state is stored remotely and allows GitHub Actions to manage infrastructure across runs.
+
+### 4. 🚀 Run the Deploy Workflow
+
+To create AWS resources:
+
+- Go to the **Actions** tab in your GitHub repo.
+- Select the `Deploy.yml` workflow.
+- Click **"Run workflow"**.
+
+This will automatically provision the EC2 instance and the S3 bucket and validate **application hosting**.
+
+### 5. 🧹 Run the Destroy Workflow
+
+To delete all AWS resources created by Terraform:
+
+- Go to the **Actions** tab.
+- Select the `Destroy.yml` workflow.
+- Click **"Run workflow"**.
+
+---
+
+
+## 🛠️ Prerequisites for local setup
 
 Before you begin, make sure you have the following installed:
 
@@ -24,7 +60,9 @@ Before you begin, make sure you have the following installed:
 
 ---
 
-## 🔐 Configure AWS Credentials
+### 🔐 Configure AWS Credentials
+
+Run:
 
 ```bash
 aws configure
@@ -34,33 +72,38 @@ You’ll be prompted to enter:
 
 - AWS Access Key ID
 - AWS Secret Access Key
-- Default region name (e.g., `us-east-1`)
+- Default region name (e.g., `ap-south-1`)
 - Default output format (optional)
 
 ---
 
-## 🧾 Usage
+## 💻 Local Usage Instructions
 
 ### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/rajgupta2/tech_eazy_devops_rajgupta2.git
-cd your-repo-name
+cd tech_eazy_devops_rajgupta2/terraform
 ```
 
-### 2. Initialize Terraform
+### 2. Delete the `backend.tf` File
+
+> ⚠️ Since you are running Terraform locally, remove the `backend.tf` file from the `./terraform/` directory.
+> This file is used only for remote terraform state management (like in GitHub Actions).
+
+### 3. Initialize Terraform
 
 ```bash
 terraform init
 ```
 
-### 3. Review the Terraform Plan (optional)
+### 4. Review the Terraform Plan (optional)
 
 ```bash
 terraform plan
 ```
 
-### 4. Apply the Terraform Configuration
+### 5. Apply the Terraform Configuration
 
 ```bash
 terraform apply
@@ -70,37 +113,31 @@ Type `yes` when prompted.
 
 ---
 
-## 🔍 What to Expect
+### 🔍 What to Expect
 
-- Terraform will launch an EC2 instance.
-- The instance will automatically install Java and Maven.
-- Log output will be available at:
-
-  ```bash
-  /var/log/cloud-init-output.log
-  # and also available at S3 Bucket and also app logs be there.
-  ```
-
----
-
-## ⚙️ Configuration
-
-You can modify the following files:
-
-- `main.tf`: AWS provider and EC2 instance configuration
-- `user_data.sh`: Script to install and configure software on EC2
-- `variables.tf`: Input variables (like AMI ID, instance type, etc.)
-- `outputs.tf`: Outputs (like instance public IP)
+- An EC2 instance will be provisioned.
+- Java and Maven will be installed automatically on the instance.
+- Logs will be stored in the configured **S3 bucket**.
+- Application will be deployed successfully.
+- You can also read log by connecting to `EC2-instances: InstanceWithS3ReadsAccess` and running below command.
+    ```bash
+        aws s3 ls s3://logs-bucket-rajgupta2-ap-south-1 #This lists all top-level files/folders in the bucket. Make sure you change the bucket name according to your if you configure your bucket name.
+        aws s3 cp s3://logs-bucket-rajgupta2-ap-south-1/app/logs/file_name.log . #You need to configure file name in above script..
+        cat file_name.log #to read the log
+    ```
 
 ---
 
-## 🧼 Clean Up
 
-To destroy all resources created by Terraform:
+## 🧼 Clean Up Locally
+
+To avoid charges, destroy all resources created by Terraform:
 
 ```bash
 terraform destroy
 ```
+
+Confirm by typing `yes`.
 
 ---
 
