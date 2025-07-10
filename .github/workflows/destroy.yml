@@ -1,4 +1,4 @@
-name: 'Deploy to EC2'
+name: 'Terraform Destroy'
 
 on:
   workflow_dispatch:
@@ -48,24 +48,5 @@ jobs:
     - name: Terraform Init
       run: terraform init
 
-    - name: Terraform Validate
-      run: terraform validate
-
-    - name: Terraform Plan
-      run: terraform plan
-
-    - name: Terraform Apply
-      run: terraform apply -var "stage=${{ inputs.stage }}" --auto-approve
-
-    - name: Validate app health
-      run: |
-       echo "Waiting 60 seconds for the application to initialize..."
-       sleep 60
-       EC2_IP=$(terraform output -raw public-ip-address-with-app-deployment)
-       echo "Wait Completed. Checking frontend application health on port 80..."
-       if curl -f "http://${EC2_IP}"; then
-          echo "SUCCESS: application is healthy and responding on port 80."
-       else
-          echo "FAILURE: application is not responding or returned an error."
-          exit 1 # Fail the step if the curl command fails.
-       fi
+    - name: Terraform destroy
+      run: terraform destroy -var "stage=${{ inputs.stage }}" --auto-approve
