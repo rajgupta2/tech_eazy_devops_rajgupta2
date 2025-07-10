@@ -1,5 +1,7 @@
 #! /bin/bash
 
+set -e  # Exit on error
+
 STOP_INSTANCE="${STOP_INSTANCE}"
 S3_BUCKET_NAME="${S3_BUCKET_NAME}"
 EC2-Instance = ${EC2-Instance}
@@ -47,7 +49,7 @@ mvn clean package
 nohup sudo ~/jdk-21.0.7/bin/java -jar target/techeazy-devops-0.0.1-SNAPSHOT.jar  > application.log 2>&1 &
 echo "App deployed successfuly."
 
-aws s3 cp /var/log/cloud-init.log s3://${S3_BUCKET_NAME}/cloud-init-${EC2-Instance}.log
+aws s3 cp /var/log/cloud-init-output.log s3://${S3_BUCKET_NAME}/cloud-init-${EC2-Instance}.log
 echo "Cloud-init log get uploaded in S3 bucket ."
 
 aws s3 cp application.log "s3://${S3_BUCKET_NAME}/app/logs/app-$(date +%s).log"

@@ -1,4 +1,4 @@
-name: 'Terraform Deploy'
+name: 'Terraform Destroy'
 
 on:
   workflow_dispatch:
@@ -16,7 +16,7 @@ permissions:
   contents: read
 
 jobs:
-  deploy_with_terraform:
+  destroy_with_terraform:
     runs-on: ubuntu-latest
 
     # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
@@ -48,24 +48,5 @@ jobs:
     - name: Terraform Init
       run: terraform init
 
-    - name: Terraform Validate
-      run: terraform validate
-
-    - name: Terraform Plan
-      run: terraform plan
-
-    - name: Terraform Apply
-      run: terraform apply -var "stage=${{ inputs.stage }}" --auto-approve
-
-    - name: Validate app health
-      run: |
-       EC2_IP=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=MyInstance-techeazyWithS3Access" --query 'Reservations[].Instances[].PublicIpAddress' --output text)
-       echo "Waiting 30 seconds for the application to initialize..."
-       sleep 30
-       echo "Wait Completed. Checking frontend application health on port 80..."
-       if curl -f "http://${EC2_IP}"; then
-          echo "SUCCESS: application is healthy and responding on port 80."
-       else
-          echo "FAILURE: application is not responding or returned an error."
-          exit 1 # Fail the step if the curl command fails.
-       fi
+    - name: Terraform destroy
+      run: terraform destroy -var "stage=${{ inputs.stage }}" --auto-approve

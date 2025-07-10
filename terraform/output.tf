@@ -1,5 +1,11 @@
-output "public-ip-address" {
+output "public-ip-address-with-app-deployment" {
+  description = "IP address of hosting server"
   value = aws_instance.webserver-techeazy.public_ip
+}
+
+output "ip-address-instance-with-s3-read-access" {
+  description = "IP address of s3-read server"
+  value = aws_instance.webserver-techeazy-S3-read.public_ip
 }
 
 output "instance_id" {
@@ -8,7 +14,7 @@ output "instance_id" {
 }
 output "Deploying" {
   description = "Deploying the application"
-  value       = "Please wait 5 to 7 minutes while setup our deployment server. As we are installing java, maven and git"
+  value       = "Please wait upto 2  minutes while setup our deployment server. As we are installing java, maven and git"
 }
 output "shutdown" {
   description = "shutdown msg"

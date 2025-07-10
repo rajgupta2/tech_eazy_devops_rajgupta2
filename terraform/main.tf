@@ -2,6 +2,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
+      version = "6.2.0"
     }
   }
 }
@@ -17,7 +18,7 @@ resource "aws_instance" "webserver-techeazy" {
   iam_instance_profile   = aws_iam_instance_profile.ec2-instance-profile.name
   associate_public_ip_address = true
   vpc_security_group_ids = [aws_security_group.techeazy-security-group.id]
-  user_data = base64encode(templatefile("../scripts/user_data.sh",{
+  user_data = base64encode(templatefile("../scripts/${var.stage}_script.sh",{
     STOP_INSTANCE       = var.stop_after_minutes # Match STOP_INSTANCE in script
     S3_BUCKET_NAME      = var.s3_bucket
     EC2-Instance  = var.instance_name
@@ -128,7 +129,7 @@ resource "aws_iam_role_policy_attachment" "attach_create_upload_access" {
 
 #Creating instance profile so that we can attach it to ec2
 resource "aws_iam_instance_profile" "ec2-instance-profile" {
-  name = "ec2-s3-instance-profile_${var.ami_value}"
+  name = "ec2-s3-instance-profile_${var.instance_name}"
   role = aws_iam_role.EC2-S3-Role.name
 }
 
@@ -147,7 +148,10 @@ resource "aws_iam_policy" "policy_for_S3_Bucket_Read_Access" {
           "s3:ListBucket",
           "s3:GetObject"
         ]
-        Resource="arn:aws:s3:::${var.s3_bucket}/*"
+        Resource=[
+          "arn:aws:s3:::${var.s3_bucket}",
+          "arn:aws:s3:::${var.s3_bucket}/*"
+        ]
       }
     ]
   })
@@ -180,10 +184,23 @@ resource "aws_iam_role_policy_attachment" "attach_s3_read_access" {
   policy_arn = aws_iam_policy.policy_for_S3_Bucket_Read_Access.arn
 }
 
-# resource "aws_iam_role_policy_attachment" "attach_read_access" {
-#   role       = aws_iam_role.EC2-S3-Role.name
-#   policy_arn = aws_iam_policy.policy_for_S3_Bucket_Read_Access.arn
-# }
+resource "aws_instance" "webserver-techeazy-S3-read" {
+  ami                    = var.ami_value
+  instance_type          = var.instance_type_value
+  subnet_id              = var.subnet_id_defaultVPC
+  iam_instance_profile   = aws_iam_instance_profile.ec2-s3-read-profile.name
+  associate_public_ip_address = true
+  vpc_security_group_ids = [aws_security_group.techeazy-security-group.id]
+  tags = {
+    Name = var.instance_name_s3_read
+  }
+}
+
+#Creating instance profile so that we can attach it to ec2 which can read logs
+resource "aws_iam_instance_profile" "ec2-s3-read-profile" {
+  name = "ec2-s3-read-instance-profile_${var.instance_name_s3_read}"
+  role = aws_iam_role.S3-Read-Role.name
+}
 
 
 resource "aws_s3_bucket_lifecycle_configuration" "S3_bucket_LifeCycle" {

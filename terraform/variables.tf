@@ -24,6 +24,20 @@ variable "instance_name" {
   type = string
   default = "MyInstance-techeazyWithS3Access"
 }
+variable "stage" {
+  description = "Deployment stage"
+  type        = string
+  default     = "dev"
+
+  validation {
+    condition     = contains(["dev", "prod"], var.stage)
+    error_message = "Stage must be either 'dev' or 'prod'."
+  }
+}
+variable "instance_name_s3_read" {
+  type = string
+  default = "InstanceWithS3ReadsAccess"
+}
 variable "key_name_value" {
   description = "name of pem file"
   type        = string
