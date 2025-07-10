@@ -59,8 +59,8 @@ jobs:
 
     - name: Validate app health
       run: |
-       EC2_IP=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=webserver-techeazy" --query 'Reservations[].Instances[].PublicIpAddress' --output text)
-       echo "Waiting 60 seconds for the application to initialize..."
+       EC2_IP=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=MyInstance-techeazyWithS3Access" --query 'Reservations[].Instances[].PublicIpAddress' --output text)
+       echo "Waiting 30 seconds for the application to initialize..."
        sleep 30
        echo "Wait Completed. Checking frontend application health on port 80..."
        if curl -f "http://${EC2_IP}"; then
