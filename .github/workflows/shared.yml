@@ -1,15 +1,10 @@
-name: 'Terraform Destroy'
+# This gitHub Actions workflow. will destroy all the resources such as S3 bucket, role, policy,
+# which is shared between different stages such as prod/dev
+# Make sure you have deleted all the resources of dev and prod stages before executing this one.
+name: 'Terraform Destroy Shared Resources at different stages'
+
 on:
   workflow_dispatch:
-    inputs:
-      stage:
-        description: 'Deployment stage (dev or prod)'
-        required: true
-        default: 'dev'
-        type: choice
-        options:
-          - dev
-          - prod
 
 permissions:
   contents: read
@@ -22,7 +17,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: ./terraform
+        working-directory: ./terraform/shared
 
     steps:
     # Checkout the repository to the GitHub Actions runner
@@ -43,8 +38,8 @@ jobs:
           terraform_version: '1.12.2'
 
     # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
-    - name: Terraform Initializing ${{inputs.stage}} resources
-      run: terraform init -backend-config="key=${{inputs.stage}}/terraform.tfstate"
+    - name: Terraform Init
+      run: terraform init
 
-    - name: Terraform destroy ${{inputs.stage}} resources
-      run: terraform destroy -var "stage=${{ inputs.stage }}" -var "github_token=${{secrets.GH_TOKEN}}" --auto-approve
+    - name: Terraform destroy
+      run: terraform destroy --auto-approve

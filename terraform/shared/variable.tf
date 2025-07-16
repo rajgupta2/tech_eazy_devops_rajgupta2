@@ -20,19 +20,10 @@ variable "instance_type_value" {
   type        = string
   default     = "t3.micro"
 }
-variable "instance_name" {
-  type = string
-  default = "TecheazyWithS3Access"
-}
-variable "stage" {
-  description = "Deployment stage/environment (dev or prod)"
-  type        = string
-  default     = "dev"
 
-  validation {
-    condition     = contains(["dev", "prod"], var.stage)
-    error_message = "Stage must be either 'dev' or 'prod'."
-  }
+variable "instance_name_s3_read" {
+  type = string
+  default = "techeazyS3ReadsAccess"
 }
 variable "key_name_value" {
   description = "name of pem file"
@@ -40,12 +31,12 @@ variable "key_name_value" {
   default     = "new-key.pem"
 }
 
-variable "stop_after_minutes" {
-  type = number
-  default = 20
-}
-variable "github_token" {
-  description = "GitHub token for accessing private repositories"
+variable "s3_bucket" {
+  description = "The name of the S3 bucket"
   type        = string
-  sensitive   = true
+  default = "logs-bucket-rajgupta2-ap-south-1"
+  validation {
+    condition = length(var.s3_bucket)>0
+    error_message = "The bucket name must be provided and cannot be empty."
+  }
 }

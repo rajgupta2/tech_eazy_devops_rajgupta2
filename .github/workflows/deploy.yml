@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       stage:
-        description: 'Deployment stage (dev or prod)'
+        description: 'Deployment stage (dev or prod) This stage is used as terraform var.'
         required: true
         default: 'dev'
         type: choice
@@ -26,46 +26,49 @@ jobs:
         working-directory: ./terraform
 
     steps:
-    # Checkout the repository to the GitHub Actions runner
-    - name: Clone your repo code
-      uses: actions/checkout@v4
+      # Checkout the repository to the GitHub Actions runner
+      - name: Clone your repo code
+        uses: actions/checkout@v4
 
-    - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-south-1
-          output-format: json
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            aws-region: ap-south-1
 
-    # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v1
-      with:
-          terraform_version: '1.12.2'
+      # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+            terraform_version: '1.12.2'
 
-    # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
-    - name: Terraform Init
-      run: terraform init
+      # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
+      # Initialize Shared Resources such as role, policy, bucket for different stage.
+      - name: Init Shared Resources such as role, policy, bucket for different stage.
+        working-directory: ./terraform/shared
+        run: terraform init
 
-    - name: Terraform Validate
-      run: terraform validate
+      - name: Creating Shared Resources such as role, policy, bucket for different stage.
+        working-directory: ./terraform/shared
+        run: terraform apply --auto-approve
 
-    - name: Terraform Plan
-      run: terraform plan
+      # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
+      - name: Terraform Initializing ${{inputs.stage}} resources
+        run: terraform init -backend-config="key=${{inputs.stage}}/terraform.tfstate"
 
-    - name: Terraform Apply
-      run: terraform apply -var "stage=${{ inputs.stage }}" --auto-approve
+      - name: Terraform Apply for ${{inputs.stage}} resources
+        run: terraform apply -var "stage=${{inputs.stage}}" -var "github_token=${{secrets.GH_TOKEN}}" --auto-approve
 
-    - name: Validate app health
-      run: |
-       EC2_IP=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=MyInstance-techeazyWithS3Access" --query 'Reservations[].Instances[].PublicIpAddress' --output text)
-       echo "Waiting 30 seconds for the application to initialize..."
-       sleep 30
-       echo "Wait Completed. Checking frontend application health on port 80..."
-       if curl -f "http://${EC2_IP}"; then
-          echo "SUCCESS: application is healthy and responding on port 80."
-       else
-          echo "FAILURE: application is not responding or returned an error."
-          exit 1 # Fail the step if the curl command fails.
-       fi
+      - name: Validate app health
+        run: |
+          EC2_IP=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=TecheazyWithS3Access-${{inputs.stage}}" --query 'Reservations[].Instances[].PublicIpAddress' --output text)
+          echo "Waiting 30 seconds for the application to initialize..."
+          sleep 30
+          echo "Wait Completed. Checking frontend application health on port 80..."
+          if curl -f "http://${EC2_IP}"; then
+              echo "SUCCESS: application is healthy and responding on port 80."
+          else
+              echo "FAILURE: application is not responding or returned an error."
+              exit 1 # Fail the step if the curl command fails.
+          fi
