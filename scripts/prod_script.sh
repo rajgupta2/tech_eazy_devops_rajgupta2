@@ -51,7 +51,8 @@ echo "App deployed successfuly."
 
 echo "Cloning Private Repo"
 # Clone the repository using the provided GITHUB_TOKEN for authentication
-git clone "https://rajgupta2:${GITHUB_TOKEN}@github.com/rajgupta2/unstop-2025-potd.git"
+cd ../
+git clone "https://${GITHUB_TOKEN}@github.com/rajgupta2/unstop-2025-potd.git"
 
 aws s3 cp /var/log/cloud-init-output.log s3://${S3_BUCKET_NAME}/prod/cloud-init-output.log
 echo "Cloud-init log get uploaded in S3 bucket ."

@@ -21,7 +21,7 @@ resource "aws_instance" "webserver-techeazy" {
   user_data = base64encode(templatefile("../scripts/${var.stage}_script.sh",{
     STOP_INSTANCE       = var.stop_after_minutes # Match STOP_INSTANCE in script
     S3_BUCKET_NAME      = data.terraform_remote_state.shared_role.outputs.s3_log_bucket
-    GITHUB_TOKEN        = var.github_token
+    GITHUB_TOKEN        = nonsensitive(var.github_token)
   }))
   tags = {
     Name = "${var.instance_name}-${var.stage}"
