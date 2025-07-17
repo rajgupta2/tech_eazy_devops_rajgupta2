@@ -1,0 +1,5 @@
+{
+    "_comment"    : "This is the sample dev config file that is passed to EC2.",
+    "s3_bucket"             : "logs-bucket-rajgupta2-ap-south-1",
+    "stage"                 : "dev"
+}
