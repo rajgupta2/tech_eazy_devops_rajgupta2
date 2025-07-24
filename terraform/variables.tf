@@ -49,3 +49,9 @@ variable "github_token" {
   type        = string
   sensitive   = true
 }
+
+variable "alert_email" {
+  description = "Email address to receive SNS alerts"
+  type        = string
+  default     = "rajgupta.ckt.swe@gmail.com"
+}

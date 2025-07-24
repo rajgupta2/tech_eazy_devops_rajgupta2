@@ -51,8 +51,8 @@ resource "aws_s3_bucket" "S3_bucket_For_Logs" {
   }
 }
 
-resource "aws_iam_role" "EC2-S3-Role" {
-  name = "Role-With-S3-write-access"
+resource "aws_iam_role" "EC2-Role" {
+  name = "S3-write-access-and-ec2-cloudwatch-role"
   description = "This is a role that allow to create buckets and upload objects."
 
   assume_role_policy = jsonencode({
@@ -99,14 +99,14 @@ resource "aws_iam_policy" "policy_for_s3_bucket_creation_and_upload_objects" {
   })
 }
 resource "aws_iam_role_policy_attachment" "attach_create_upload_access" {
-  role       = aws_iam_role.EC2-S3-Role.name
+  role       = aws_iam_role.EC2-Role.name
   policy_arn = aws_iam_policy.policy_for_s3_bucket_creation_and_upload_objects.arn
 }
 
 #Creating instance profile so that we can attach it to ec2
 resource "aws_iam_instance_profile" "ec2-instance-profile" {
-  name = "ec2-s3-put-instance-profile"
-  role = aws_iam_role.EC2-S3-Role.name
+  name = "ec2-s3-put-log-and-cloudwatch-log-stream"
+  role = aws_iam_role.EC2-Role.name
 }
 
 resource "aws_iam_policy" "policy_for_S3_Bucket_Read_Access" {
@@ -195,4 +195,30 @@ resource "aws_s3_bucket_lifecycle_configuration" "S3_bucket_LifeCycle" {
       days = abs(7)
     }
   }
+}
+
+resource "aws_iam_policy" "cloudwatch_log_policy" {
+  name        = "ec2-cloudwatch-logs-policy"
+  description = "Allow EC2 to push logs to CloudWatch"
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents",
+          "logs:DescribeLogStreams"
+        ],
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "attach_policy" {
+  role       = aws_iam_role.EC2-Role.name
+  policy_arn = aws_iam_policy.cloudwatch_log_policy.arn
 }

@@ -2,6 +2,19 @@
 
 set -e  # Exit on error
 
+sudo yum update -y
+yum install -y amazon-cloudwatch-agent
+
+# Writing the Cloudwatch configuration
+cat <<EOF > /opt/aws/amazon-cloudwatch-agent/bin/cwagent-config.json
+${cloudwatch_agent_config}
+EOF
+
+# Start the CloudWatch Agent with the config
+/opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
+-a fetch-config -m ec2 \
+-c file:/opt/aws/amazon-cloudwatch-agent/bin/cwagent-config.json -s
+
 STOP_INSTANCE="${STOP_INSTANCE}"
 S3_BUCKET_NAME="${S3_BUCKET_NAME}"
 GITHUB_TOKEN="${GITHUB_TOKEN}"
