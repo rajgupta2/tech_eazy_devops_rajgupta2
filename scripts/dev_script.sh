@@ -50,7 +50,7 @@ sudo yum install git -y
 echo "git client installed succefully."
 echo "Cloning git repo techeazy-devops."
 
-git clone https://github.com/techeazy-consulting/techeazy-devops
+git clone https://github.com/rajgupta2/techeazy-devops
 
 cd techeazy-devops
 git checkout 4a53f230c2cf21dc641a299e3b7d326b8a9c3fa2
