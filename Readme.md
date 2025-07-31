@@ -1,6 +1,17 @@
-# 🚀 Assignment-04
+# 🚀 Assignment-05
 
-This repository contains Terraform code to launch an AWS EC2 instance for different stages and create an s3 bucket to store logs for different stages. You can use this repo as
+This repository contains Terraform code
+- To launch an AWS EC2 instance for different stages
+- To create an s3 bucket to store logs for different stages and
+- To streams logs to cloudwatch
+- Created the SNS topic and configure the alarm so that it can publish the SNS Message.
+To trigger the cloudwatch alarm for SNS message:
+    - Put your email at alert_email variable in  ./terraform/variables.tf file.
+    - SSH into EC2 and simulate a log entry with suitable permissions:
+      - echo "ERROR: Simulated failure" >> /home/ec2-user/techeazy-devops/application.log
+    - You will get SNS message at your email.
+
+You can use this repo as
 
 - ✅ **Locally** on your machine
 - ✅ **Automatically** through a **GitHub Actions** workflow

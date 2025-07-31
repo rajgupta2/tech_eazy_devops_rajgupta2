@@ -2,6 +2,19 @@
 
 set -e  # Exit on error
 
+sudo yum update -y
+yum install -y amazon-cloudwatch-agent
+
+# Writing the Cloudwatch configuration
+cat <<EOF > /opt/aws/amazon-cloudwatch-agent/bin/cwagent-config.json
+${cloudwatch_agent_config}
+EOF
+
+# Start the CloudWatch Agent with the config
+/opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
+-a fetch-config -m ec2 \
+-c file:/opt/aws/amazon-cloudwatch-agent/bin/cwagent-config.json -s
+
 STOP_INSTANCE="${STOP_INSTANCE}"
 S3_BUCKET_NAME="${S3_BUCKET_NAME}"
 GITHUB_TOKEN="${GITHUB_TOKEN}"
@@ -40,7 +53,7 @@ sudo yum install git -y
 echo "git client installed succefully."
 echo "Cloning git repo techeazy-devops."
 
-git clone https://github.com/techeazy-consulting/techeazy-devops
+git clone https://github.com/rajgupta2/techeazy-devops
 
 cd techeazy-devops
 git checkout 4a53f230c2cf21dc641a299e3b7d326b8a9c3fa2

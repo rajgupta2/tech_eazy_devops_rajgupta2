@@ -1,5 +1,5 @@
 output "ec2-instance-profile" {
-  description = "This is instance profile that we need to attach to 'EC2 having Hosting App'."
+  description = "This instance profile have S3-write-access and it can upload log stream to cloudwatch."
   value = aws_iam_instance_profile.ec2-instance-profile.name
 }
 output "s3_log_bucket" {
